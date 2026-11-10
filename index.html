@@ -1,1 +1,425 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สารานุกรมสัตว์น่ารู้</title>
+    <!-- โหลดฟอนต์ Prompt เพื่อความสวยงามอ่านง่าย -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --------------------------------------
+           1. ตั้งค่าพื้นฐาน (General Styles)
+        ----------------------------------------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
 
+        body {
+            background-color: #f4fbf7;
+            color: #333;
+            min-h: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --------------------------------------
+           2. ส่วนหัวเว็บไซต์ (Header)
+        ----------------------------------------- */
+        header {
+            background: linear-gradient(135deg, #4ade80, #2dd4bf);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        /* --------------------------------------
+           3. ส่วนเนื้อหาและปุ่มกรอง (Main & Filter)
+        ----------------------------------------- */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        /* ปุ่มกรองหมวดหมู่ */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            background-color: white;
+            color: #4b5563;
+            border: 2px solid #e5e7eb;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background-color: #e8f5e9;
+            color: #16a34a;
+            border-color: #86efac;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background-color: #22c55e;
+            color: white;
+            border-color: #22c55e;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+        }
+
+        /* --------------------------------------
+           4. ตารางการ์ดสัตว์ (CSS Grid & Gallery)
+        ----------------------------------------- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* โครงสร้างการ์ดแต่ละใบ */
+        .card {
+            background-color: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #f0f0f0;
+        }
+
+        /* Hover Effect การ์ด */
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* รูปภาพในการ์ด */
+        .card-img-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .card-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img-container img {
+            transform: scale(1.08);
+        }
+
+        /* ป้ายหมวดหมู่บนภาพ */
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #16a34a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* ข้อความรายละเอียดในการ์ด */
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        /* ส่วนล่างของการ์ด (ปุ่มกดไลก์) */
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        /* ปุ่มกดไลก์ / กดหัวใจ */
+        .like-btn {
+            background-color: #fff1f2;
+            color: #e11d48;
+            border: 1px solid #ffe4e6;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .like-btn:hover {
+            background-color: #ffe4e6;
+            transform: scale(1.05);
+        }
+
+        /* เมื่อกดไลก์แล้ว (Active state) */
+        .like-btn.liked {
+            background-color: #e11d48;
+            color: white;
+            border-color: #e11d48;
+        }
+
+        /* --------------------------------------
+           5. ส่วนท้ายเว็บไซต์ (Footer)
+        ----------------------------------------- */
+        footer {
+            background-color: #1f2937;
+            color: #9ca3af;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+
+        /* CSS คลาสสำหรับซ่อนการ์ด */
+        .hide {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Header: ส่วนหัวของเว็บ -->
+    <header>
+        <h1>🐾 สารานุกรมสัตว์น่ารู้</h1>
+        <p>รวบรวมเรื่องน่ารักและน่าสนใจของสัตว์โลกน่ารักชนิดต่างๆ</p>
+    </header>
+
+    <!-- 2. Main: ส่วนเนื้อหาหลัก -->
+    <main>
+        <!-- ปุ่มกรองหมวดหมู่ (Filter Buttons) -->
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterAnimals('all', this)">ทั้งหมด (All)</button>
+            <button class="filter-btn" onclick="filterAnimals('mammals', this)">สัตว์เลี้ยงลูกด้วยนม 🦁</button>
+            <button class="filter-btn" onclick="filterAnimals('birds', this)">นก 🦜</button>
+            <button class="filter-btn" onclick="filterAnimals('reptiles', this)">สัตว์เลื้อยคลาน 🐢</button>
+        </div>
+
+        <!-- การ์ดรูปภาพสัตว์ (Gallery Cards) -->
+        <div class="gallery-grid">
+
+            <!-- การ์ดที่ 1: สิงโต -->
+            <div class="card" data-category="mammals">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?auto=format&fit=crop&w=600&q=80" alt="สิงโต">
+                    <span class="category-badge">สัตว์เลี้ยงลูกด้วยนม</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">สิงโต (Lion)</h3>
+                    <p class="card-desc">สิงโตเป็นราชาแห่งทุ่งหญ้า อาศัยอยู่รวมกันเป็นฝูง ตัวผู้จะมีแผงคอที่สง่างาม</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">12</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดที่ 2: นกแก้วมาคอว์ -->
+            <div class="card" data-category="birds">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1552728089-57bdde30beb3?auto=format&fit=crop&w=600&q=80" alt="นกแก้วมาคอว์">
+                    <span class="category-badge">นก</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">นกแก้วมาคอว์ (Macaw)</h3>
+                    <p class="card-desc">นกแก้วสีสดใส มีความเฉลียวฉลาดสูง และสามารถฝึกเลียนเสียงมนุษย์ได้</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">25</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดที่ 3: เต่าทะเล -->
+            <div class="card" data-category="reptiles">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80" alt="เต่าทะเล">
+                    <span class="category-badge">สัตว์เลื้อยคลาน</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">เต่าทะเล (Sea Turtle)</h3>
+                    <p class="card-desc">สัตว์เลื้อยคลานโบราณที่ว่ายน้ำไกลหลายพันกิโลเมตรเพื่อกลับมาวางไข่ที่เดิม</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">18</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดที่ 4: แพนด้าแดง -->
+            <div class="card" data-category="mammals">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=600&q=80" alt="แพนด้าแดง">
+                    <span class="category-badge">สัตว์เลี้ยงลูกด้วยนม</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">แพนด้าแดง (Red Panda)</h3>
+                    <p class="card-desc">สัตว์ขนาดเล็กขนสีน้ำตาลแดง หางเป็นพวง ชอบนอนและหาอาหารบนต้นไม้</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">40</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดที่ 5: เพนกวิน -->
+            <div class="card" data-category="birds">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1598439210625-5067c578f3f6?auto=format&fit=crop&w=600&q=80" alt="นกเพนกวิน">
+                    <span class="category-badge">นก</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">นกเพนกวิน (Penguin)</h3>
+                    <p class="card-desc">นกที่บินไม่ได้แต่ว่ายน้ำเก่งมาก อาศัยอยู่ในภูมิอากาศที่หนาวเย็นจัด</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">31</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดที่ 6: กิ้งก่าคาเมเลออน -->
+            <div class="card" data-category="reptiles">
+                <div class="card-img-container">
+                    <img src="https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&w=600&q=80" alt="กิ้งก่าคาเมเลออน">
+                    <span class="category-badge">สัตว์เลื้อยคลาน</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">กิ้งก่าคาเมเลออน (Chameleon)</h3>
+                    <p class="card-desc">กิ้งก่าที่สามารถเปลี่ยนสีผิวเพื่อพรางตัวให้เข้ากับสิ่งแวดล้อมได้</p>
+                    <div class="card-footer">
+                        <button class="like-btn" onclick="toggleLike(this)">
+                            <span class="heart-icon">🤍</span>
+                            <span class="like-count">15</span> ไลก์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 3. Footer: ส่วนท้าย -->
+    <footer>
+        <p>© 2026 สารานุกรมสัตว์น่ารู้ - โครงงานเว็บไซต์สั้นสำหรับนักเรียน</p>
+    </footer>
+
+    <!-- 4. JavaScript: ระบบการทำงานของเว็บไซต์ -->
+    <script>
+        // ----------------------------------------------------
+        // ฟังก์ชัน 1: กรองหมวดหมู่สัตว์ (Filter Function)
+        // ----------------------------------------------------
+        function filterAnimals(category, btnElement) {
+            // 1. เปลี่ยนสีปุ่มที่ถูกเลือก (Active Button)
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // 2. ซ่อน/แสดงการ์ดตามหมวดหมู่
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (category === 'all' || cardCategory === category) {
+                    card.classList.remove('hide'); // แสดงการ์ด
+                } else {
+                    card.classList.add('hide'); // ซ่อนการ์ด
+                }
+            });
+        }
+
+        // ----------------------------------------------------
+        // ฟังก์ชัน 2: ระบบกดไลก์/กดหัวใจ (Like Button Function)
+        // ----------------------------------------------------
+        function toggleLike(btn) {
+            const countSpan = btn.querySelector('.like-count');
+            const heartIcon = btn.querySelector('.heart-icon');
+            let currentLikes = parseInt(countSpan.textContent);
+
+            // ตรวจสอบว่าเคยไลก์ไปหรือยัง
+            if (btn.classList.contains('liked')) {
+                // ยกเลิกไลก์ (-1)
+                currentLikes--;
+                btn.classList.remove('liked');
+                heartIcon.textContent = '🤍';
+            } else {
+                // กดไลก์ (+1)
+                currentLikes++;
+                btn.classList.add('liked');
+                heartIcon.textContent = '❤️';
+            }
+
+            // อัปเดตตัวเลขบนหน้าเว็บ
+            countSpan.textContent = currentLikes;
+        }
+    </script>
+</body>
+</html>
